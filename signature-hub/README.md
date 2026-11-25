@@ -13,7 +13,7 @@ Signature Hub is a Vercel-hosted Next.js workspace for preparing and tracking Si
 
 ## Vercel environment
 
-Required: `SIGNWELL_API_KEY`, `SIGNATURE_HUB_API_KEY`, and `SIGNATURE_HUB_WEBHOOK_TOKEN` (all sensitive). Drive archiving also needs `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, `GOOGLE_DRIVE_REFRESH_TOKEN`, and `SIGNATURE_HUB_DRIVE_FOLDER_ID` (folder ID for the `Signature Hub` folder created in Drive). Set `NEXT_PUBLIC_APP_URL` to the stable production URL to register the SignWell webhook. The app does not store PDFs or document state in its filesystem; SignWell is the system of record.
+Required: `SIGNWELL_API_KEY`, `SIGNATURE_HUB_API_KEY`, and `SIGNATURE_HUB_WEBHOOK_TOKEN` (all sensitive). Drive archiving also needs `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, `GOOGLE_DRIVE_REFRESH_TOKEN`, and `SIGNATURE_HUB_DRIVE_FOLDER_ID` (folder ID for the `Signature Hub` folder created in Drive). Since Vercel SSO protects the project, enable Vercel Protection Bypass for Automation before registering the external SignWell callback; Vercel supplies `VERCEL_AUTOMATION_BYPASS_SECRET` to the runtime and the callback URL uses it. Set `NEXT_PUBLIC_APP_URL` to the stable production URL if Vercel does not expose `VERCEL_PROJECT_PRODUCTION_URL`. The app does not store PDFs or document state in its filesystem; SignWell is the system of record.
 
 ## API
 
@@ -26,7 +26,7 @@ Required: `SIGNWELL_API_KEY`, `SIGNATURE_HUB_API_KEY`, and `SIGNATURE_HUB_WEBHOO
 - `POST /api/webhooks/register` — register completion callback with SignWell.
 - `POST /api/mcp` — JSON-RPC MCP methods `initialize`, `tools/list`, and `tools/call`.
 
-Every route except health and the Vercel-SSO protected access-key bootstrap requires `Authorization: Bearer <SIGNATURE_HUB_API_KEY>`. Live signing is intentionally unavailable in this release.
+Every route except health and the Vercel-SSO plus Vercel Passport protected access-key bootstrap requires `Authorization: Bearer <SIGNATURE_HUB_API_KEY>`. Live signing is intentionally unavailable in this release. The Passport check keeps the global webhook protection bypass from becoming an API-key retrieval route.
 
 ## Local checks
 
