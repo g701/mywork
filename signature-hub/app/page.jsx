@@ -54,6 +54,7 @@ export default function Home() {
   useEffect(() => { refresh(); }, [apiKey]);
 
   const filtered = useMemo(() => {
+    if (activeFilter === "Today") return documents.filter(d => d.created_at && new Date(d.created_at).toDateString() === new Date().toDateString());
     if (activeFilter === "Awaiting signatures") return documents.filter(d => ["Sent", "In progress", "Pending"].includes(d.status));
     if (activeFilter === "Completed") return documents.filter(d => d.status === "Completed");
     if (activeFilter === "Drafts") return documents.filter(d => d.status === "Draft");
@@ -112,7 +113,7 @@ export default function Home() {
     <section className="main-area">
       <header className="topbar"><div className="crumb">Workspace <span>/</span> <b>{activeFilter}</b></div><div className="top-actions"><span className="test-pill"><i/> TEST MODE</span><button className="icon-btn" title="Refresh" onClick={refresh}>↻</button><button className="primary" onClick={() => setShowComposer(true)}>＋ <span>New request</span></button></div></header>
       <div className="content">
-        <div className="welcome"><div><div className="eyebrow">WEDNESDAY, NOVEMBER 25</div><h1>Your signature workspace</h1><p>Prepare documents, keep signers moving, and find every agreement in one place.</p></div><div className="welcome-stamp"><span>✦</span><small>Quietly<br/>in control</small></div></div>
+        <div className="welcome"><div><div className="eyebrow">SIGNATURE WORKSPACE</div><h1>Your signature workspace</h1><p>Prepare documents, keep signers moving, and find every agreement in one place.</p></div><div className="welcome-stamp"><span>✦</span><small>Quietly<br/>in control</small></div></div>
 
         <div className="stat-grid"><article className="stat-card"><div className="stat-top"><span>ALL REQUESTS</span><span className="stat-icon lavender">↗</span></div><strong>{stats.total}</strong><small>Documents in SignWell</small></article><article className="stat-card"><div className="stat-top"><span>AWAITING SIGNATURE</span><span className="stat-icon sand">◷</span></div><strong>{stats.awaiting}</strong><small>Moving through the signing flow</small></article><article className="stat-card"><div className="stat-top"><span>COMPLETED</span><span className="stat-icon mint">✓</span></div><strong>{stats.completed}</strong><small>Ready for your records</small></article><article className="stat-card mode-card"><div className="stat-top"><span>ENVIRONMENT</span><span className="live-badge">SAFE</span></div><strong className="mode-text">Test mode</strong><small>Requests stay non-binding</small></article></div>
 
