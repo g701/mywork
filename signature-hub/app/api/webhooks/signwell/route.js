@@ -12,7 +12,7 @@ export async function POST(request) {
   const event = await request.json().catch(() => null);
   const eventType = event?.event?.type;
   const doc = event?.data?.object;
-  if (eventType !== "document_completed" || !doc?.id || doc?.metadata?.signature_hub !== true) return Response.json({ received: true, archived: false });
+  if (eventType !== "document_completed" || !doc?.id || doc?.metadata?.signature_hub !== "true") return Response.json({ received: true, archived: false });
   if (!driveReady()) return Response.json({ received: true, archived: false, reason: "Drive integration is not configured." });
   try {
     const pdf = await getCompletedPdf(doc.id);
