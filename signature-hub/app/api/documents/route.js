@@ -37,7 +37,7 @@ export async function POST(request) {
       with_signature_page: true,
       reminders: true,
       apply_signing_order: String(form.get("applySigningOrder")) === "true",
-      metadata: { signature_hub: true },
+      metadata: { signature_hub: "true" },
     };
     const { body } = await signwell("/documents", { method: "POST", body: JSON.stringify(payload) });
     return Response.json({ document: body, testMode: true, sent: false }, { status: 201, headers: { "Cache-Control": "no-store" } });
