@@ -10,7 +10,7 @@ export async function GET(request) {
   try {
     const { body } = await signwell("/documents");
     const documents = Array.isArray(body) ? body : (body?.documents || body?.data || []);
-    return Response.json({ documents, testMode: true }, { headers: { "Cache-Control": "no-store" } });
+    return Response.json({ documents, liveEnabled: process.env.SIGNATURE_HUB_LIVE_ENABLED === "true" }, { headers: { "Cache-Control": "no-store" } });
   } catch (e) { return Response.json({ error: e.message }, { status: e.status || 502 }); }
 }
 
@@ -20,6 +20,9 @@ export async function POST(request) {
     const form = await request.formData();
     const file = form.get("file");
     const name = String(form.get("name") || "Signature request").trim().slice(0, 180);
+    const mode = String(form.get("mode") || "test");
+    if (!["test", "live"].includes(mode)) return Response.json({ error: "Request mode must be test or live." }, { status: 400 });
+    if (mode === "live" && process.env.SIGNATURE_HUB_LIVE_ENABLED !== "true") return Response.json({ error: "Live sending has not been enabled for this workspace." }, { status: 403 });
     let inputRecipients;
     try { inputRecipients = JSON.parse(String(form.get("recipients") || "[]")); } catch { return Response.json({ error: "Signer list is invalid." }, { status: 400 }); }
     const validated = validateRecipients(inputRecipients);
@@ -29,7 +32,7 @@ export async function POST(request) {
     const pdf = Buffer.from(await file.arrayBuffer());
     if (pdf.subarray(0, 5).toString("ascii") !== "%PDF-") return Response.json({ error: "The file does not contain a valid PDF header." }, { status: 400 });
     const payload = {
-      test_mode: true,
+      test_mode: mode !== "live",
       draft: true,
       name,
       files: [{ name: file.name.slice(0, 180), file_base64: pdf.toString("base64") }],
@@ -40,6 +43,6 @@ export async function POST(request) {
       metadata: { signature_hub: "true" },
     };
     const { body } = await signwell("/documents", { method: "POST", body: JSON.stringify(payload) });
-    return Response.json({ document: body, testMode: true, sent: false }, { status: 201, headers: { "Cache-Control": "no-store" } });
+    return Response.json({ document: body, testMode: mode !== "live", sent: false }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (e) { return Response.json({ error: e.message }, { status: e.status || 502 }); }
 }
